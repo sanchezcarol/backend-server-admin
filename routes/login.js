@@ -36,7 +36,7 @@ app.post('/', (req, res) => {
         userDB.password = ':)'
 
         //Token
-        var token = jwt.sign({ usuario: userDB }, 'jwt-seed-csan', { expiresIn: 1400 })
+        var token = jwt.sign({ usuario: userDB }, 'jwt-seed-csan', { expiresIn: 5000 })
 
         res.status(200).json({
             ok: true,

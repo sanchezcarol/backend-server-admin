@@ -7,9 +7,12 @@ var bodyParser = require('body-parser')
 var appRoutes = require('./routes/app')
 var userRoutes = require('./routes/user')
 var loginRoutes = require('./routes/login')
-
-
-//Inicializar variable
+var hospitalRoutes = require('./routes/hospital')
+var medicRoutes = require('./routes/medic')
+var searchRoutes = require('./routes/search')
+var uploadRoutes = require('./routes/upload')
+var imagesRoutes = require('./routes/images')
+    //Inicializar variable
 var app = express()
 
 
@@ -21,6 +24,11 @@ app.use(bodyParser.json())
 //Rutas
 app.use('/user', userRoutes)
 app.use('/login', loginRoutes)
+app.use('/hospital', hospitalRoutes)
+app.use('/medic', medicRoutes)
+app.use('/search', searchRoutes)
+app.use('/upload', uploadRoutes)
+app.use('/images', imagesRoutes)
 app.use('/', appRoutes)
 
 //Conect mongoose

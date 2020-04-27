@@ -8,22 +8,33 @@ var tokenAuth = require('../middlewares/authentication')
 
 app.get('/', (req, res) => {
 
-    User.find({}, 'name email role img').exec((err, users) => {
+    var since = req.query.since || 0
+    since = Number(since)
 
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: "Error en la Base de Datos User",
-                errors: err
+    User.find({}, 'name email role img')
+        .skip(since)
+        .limit(5)
+        .exec((err, users) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: "Error en la Base de Datos User",
+                    errors: err
+                })
+
+            }
+
+            User.count({}, (err, count) => {
+                res.status(200).json({
+                    ok: true,
+                    users,
+                    total: count
+                });
             })
 
-        }
 
-        res.status(200).json({
-            ok: true,
-            users
-        });
-    })
+        })
 });
 
 app.post('/', tokenAuth.Authentication, (req, res) => {
