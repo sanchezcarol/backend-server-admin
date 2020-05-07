@@ -6,9 +6,25 @@ var User = require('../models/user')
 var app = express()
 
 var CLIENT_ID = require('../config/config').CLIENT_ID;
+var authToken = require('../middlewares/authentication')
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 
+// =================================================
+//  Renew token 
+// =================================================
+
+app.get('/renewToken', authToken.Authentication, (req, res) => {
+
+    var token = jwt.sign({ user: req.user }, 'jwt-seed-csan', { expiresIn: 5000 })
+
+    return res.status(200).json({
+        ok: true,
+        token: token
+    })
+
+
+})
 
 // =================================================
 //  Authentication by Google
