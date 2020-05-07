@@ -16,15 +16,30 @@ exports.Authentication = function(req, res, next) {
             })
         }
 
-        req.user = decoded.usuario
-
+        req.user = decoded.user
         next();
-
-
 
     })
 
 
 
+
+}
+
+
+exports.AuthenticationAdmin = function(req, res, next) {
+
+    var user = req.user
+    var id = req.params.id
+
+    if (user.role === 'ADMIN_ROLE' || id == user._id) {
+        next();
+        return
+    } else {
+        return res.status(501).json({
+            ok: false,
+            mensaje: "Invalid token - Acción no válida. Debe ser un administrador.",
+        })
+    }
 
 }

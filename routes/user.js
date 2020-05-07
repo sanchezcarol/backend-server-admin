@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
     var since = req.query.since || 0
     since = Number(since)
 
-    User.find({}, 'name email role img')
+    User.find({}, 'name email role img google')
         .skip(since)
         .limit(5)
         .exec((err, users) => {
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
         })
 });
 
-app.post('/', tokenAuth.Authentication, (req, res) => {
+app.post('/', (req, res) => {
 
     var body = req.body;
 
@@ -68,10 +68,11 @@ app.post('/', tokenAuth.Authentication, (req, res) => {
 
 })
 
-app.put('/:id', tokenAuth.Authentication, (req, res) => {
+app.put('/:id', [tokenAuth.Authentication, tokenAuth.AuthenticationAdmin], (req, res) => {
 
     var id = req.params.id
     var body = req.body
+
 
     User.findById(id, (err, user) => {
         if (err) {
@@ -92,28 +93,29 @@ app.put('/:id', tokenAuth.Authentication, (req, res) => {
 
         user.name = body.name,
             user.email = body.email,
-            user.role = body.role
+            user.role = body.role,
 
-        user.save((err, saveUser) => {
-            if (err) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: "Error saving user",
-                    errors: err
+            user.save((err, saveUser) => {
+                if (err) {
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: "Error saving user",
+                        errors: err
+                    })
+
+                }
+                res.status(201).json({
+                    ok: true,
+                    saveUser
+
                 })
 
-            }
-
-            res.status(201).json({
-                ok: true,
-                saveUser
             })
-        })
 
     })
 })
 
-app.delete('/:id', tokenAuth.Authentication, (req, res) => {
+app.delete('/:id', [tokenAuth.Authentication, tokenAuth.AuthenticationAdmin], (req, res) => {
 
     var id = req.params.id
 

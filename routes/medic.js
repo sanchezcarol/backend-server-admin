@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
         .skip(since)
         .limit(5)
         .populate('user', 'name email')
-        .populate('hospital')
+        .populate('hospital', 'name id')
         .exec((err, medicsDB) => {
             if (err) {
                 return res.status(400).json({
@@ -32,6 +32,40 @@ app.get('/', (req, res) => {
             })
 
         })
+
+})
+
+app.get('/:id', (req, res) => {
+
+    var id = req.params.id
+
+    Medics.findById(id)
+        .populate('user', 'name email img')
+        .populate('hospital')
+        .exec((err, medic) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    errors: err
+                })
+            }
+
+            if (!medic) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'Médico no existe'
+                })
+            }
+
+            res.status(200).json({
+                medic: medic
+            })
+
+
+        })
+
+
 
 })
 

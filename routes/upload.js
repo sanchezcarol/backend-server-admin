@@ -29,6 +29,8 @@ app.put('/:colection/:id', (req, res, next) => {
     }
 
     var file = req.files.img
+    console.log('file: ', file);
+
     var splitName = file.name.split('.')
     var extFile = splitName[splitName.length - 1]
 
@@ -44,7 +46,6 @@ app.put('/:colection/:id', (req, res, next) => {
 
     var filename = `${id}-${new Date().getMilliseconds()}.${extFile}`
 
-
     var path = `./uploads/${colection}/${filename}`
 
     file.mv(path, err => {
@@ -55,7 +56,6 @@ app.put('/:colection/:id', (req, res, next) => {
                 errors: err
             })
         }
-
         updateImage(colection, id, filename, res)
 
     })
@@ -83,7 +83,6 @@ function updateImage(colection, id, filename, res) {
 
             if (fs.existsSync(oldPath)) {
                 fs.unlinkSync(oldPath);
-                console.log('elimina');
             }
 
             user.img = filename
@@ -122,6 +121,7 @@ function updateImage(colection, id, filename, res) {
             if (fs.existsSync(oldPath)) {
                 fs.unlinkSync(oldPath);
             }
+
 
             medic.img = filename
 

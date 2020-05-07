@@ -11,8 +11,8 @@ app.get('/', (req, res) => {
 
     Hospital.find({})
         .skip(since)
+        .populate('user', 'nombre email')
         .limit(5)
-        .populate('user', 'name email')
         .exec((err, hospitalDB) => {
             if (err) {
                 return res.status(500).json({
@@ -41,9 +41,44 @@ app.get('/', (req, res) => {
 
 })
 
+app.get('/:id', (req, res) => {
+
+    let id = req.params.id
+
+    Hospital.findById(id)
+        .populate('users', 'name email img')
+        .exec((err, hospital) => {
+
+
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    errors: err
+                })
+            }
+
+            if (!hospital) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'el hospital con el id: ' + id + 'no existe'
+                })
+            }
+
+            res.status(200).json({
+                ok: true,
+                hospital: hospital
+            })
+
+
+        })
+
+})
+
+
 app.post('/', tokenAuth.Authentication, (req, res) => {
 
     var body = req.body
+    console.log(req.user);
 
     var hospital = new Hospital({
         name: body.name,

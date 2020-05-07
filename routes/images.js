@@ -11,6 +11,7 @@ app.get('/:type/:img', (req, res) => {
 
     fs.exists(path, exists => {
         if (!exists) {
+
             path = './assets/noimage.png'
         }
 

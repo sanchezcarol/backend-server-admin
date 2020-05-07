@@ -30,6 +30,7 @@ async function verify(token) {
     }
 }
 
+
 app.post('/google', async(req, res) => {
 
     var token = req.body.token;
@@ -42,18 +43,18 @@ app.post('/google', async(req, res) => {
             });
         });
 
+
     User.findOne({ email: googleUser.email }, (err, userDB) => {
 
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'User not found',
+                mensaje: 'Error al buscar usuario',
                 errors: err
             });
         }
 
         if (userDB) {
-            console.log('user fb ', userDB);
 
             if (userDB.google === false) {
                 return res.status(400).json({
@@ -61,19 +62,18 @@ app.post('/google', async(req, res) => {
                     mensaje: 'Debe de usar su autenticación normal'
                 });
             } else {
-                var token = jwt.sign({ user: userDB }, 'jwt-seed-csan', { expiresIn: 15000 }); // 4 horas
-
+                var token = jwt.sign({ user: userDB }, 'jwt-seed-csan', { expiresIn: 14400 }); // 4 horas
                 res.status(200).json({
                     ok: true,
                     user: userDB,
                     token: token,
-                    id: userDB.id
+                    id: userDB._id,
+                    menu: getMenu(userDB.role)
                 });
             }
 
         } else {
             // El usuario no existe... hay que crearlo
-
             var user = new User();
 
             user.name = googleUser.nombre;
@@ -85,20 +85,13 @@ app.post('/google', async(req, res) => {
 
             user.save((err, userDB) => {
 
-                if (err) {
-                    return res.status(500).json({
-                        ok: false,
-                        errors: err
-                    })
-                }
-
                 var token = jwt.sign({ user: userDB }, 'jwt-seed-csan', { expiresIn: 14400 }); // 4 horas
-
                 res.status(200).json({
                     ok: true,
-                    usuario: userDB,
+                    user: userDB,
                     token: token,
-                    id: userDB.id
+                    id: userDB._id,
+                    menu: getMenu(userDB.role)
                 });
 
             });
@@ -108,14 +101,17 @@ app.post('/google', async(req, res) => {
 
     });
 
+
+
+
     // return res.status(200).json({
     //     ok: true,
     //     mensaje: 'OK!!!',
     //     googleUser: googleUser
     // });
 
-})
 
+});
 
 
 //==================================
@@ -151,16 +147,46 @@ app.post('/', (req, res) => {
         userDB.password = ':)'
 
         //Token
-        var token = jwt.sign({ usuario: userDB }, 'jwt-seed-csan', { expiresIn: 5000 })
-
+        var token = jwt.sign({ user: userDB }, 'jwt-seed-csan', { expiresIn: 5000 })
         res.status(200).json({
             ok: true,
             mensaje: 'login post',
             userDB,
             id: userDB._id,
-            token
+            token,
+            menu: getMenu(userDB.role)
         })
     })
 })
+
+function getMenu(ROLE) {
+    var menu = [{
+            titulo: 'Principal',
+            icon: 'mdi mdi-gauge',
+            submenu: [
+                { titulo: 'ProgressBar', url: '/progress' },
+                { titulo: 'Dashboard', url: '/dashboard' },
+                { titulo: 'Promesas', url: '/promesas' },
+                { titulo: 'Graphics1', url: '/graphics1' },
+                { titulo: 'Rxjs', url: '/rxjs' }
+            ]
+        },
+        {
+            titulo: 'Mantenimiento',
+            icon: 'mdi mdi-folder-lock-open',
+            submenu: [
+                { titulo: 'Medicos', url: '/medics' },
+                { titulo: 'Hospitales', url: '/hospitals' },
+
+            ]
+        }
+    ]
+
+    if (ROLE === 'ADMIN_ROLE') {
+        menu[1].submenu.unshift({ titulo: 'Usuarios', url: '/users' })
+    }
+
+    return menu
+}
 
 module.exports = app
